@@ -39,40 +39,83 @@ namespace EchoBot.Bots
                 }
             };
 
-            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 0));
-            adaptiveCard.Body.Add(new AdaptiveTextBlock()
+            var welcomeCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 0))
             {
-                Text = "Hello",
-                Size = AdaptiveTextSize.ExtraLarge
-            });
+                Body = new List<AdaptiveElement>{
+                    new AdaptiveTextBlock("Hello") { },
+                    new AdaptiveChoiceSetInput{
+                        Type = AdaptiveChoiceSetInput.TypeName,
+                        Id = "MultiSelect",
+                        // Value = cardData.MultiSelect,
+                        IsMultiSelect = false,
+                        Choices = new List<AdaptiveChoice>
+                            {
+                                new AdaptiveChoice() { Title = "True", Value = "true" },
+                                new AdaptiveChoice() { Title = "False", Value = "false" },
+                            },
+                    }
+                },
+                Actions = new List<AdaptiveAction>{
+                    new AdaptiveSubmitAction
+                    {
+                        Type = AdaptiveSubmitAction.TypeName,
+                        Title = "Submit",
+                        Data = new JObject { { "submitLocation", "messagingExtensionFetchTask" } },
+                    }
+                }
+            };
 
-            adaptiveCard.Body.Add(new AdaptiveChoiceSetInput
+            var openUrlCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 0))
             {
-                Type = AdaptiveChoiceSetInput.TypeName,
-                Id = "MultiSelect",
-                // Value = cardData.MultiSelect,
-                IsMultiSelect = false,
-                Choices = new List<AdaptiveChoice>
-                        {
-                            new AdaptiveChoice() { Title = "True", Value = "true" },
-                            new AdaptiveChoice() { Title = "False", Value = "false" },
-                        },
-            });
-            adaptiveCard.Actions.Add(new AdaptiveSubmitAction
+                Body = new List<AdaptiveElement>{
+                    new AdaptiveTextBlock("Title") { Size=AdaptiveTextSize.Medium},
+                    new AdaptiveTextBlock("one **two** three") { },
+                },
+                Actions = new List<AdaptiveAction>{
+                    new AdaptiveOpenUrlAction
+                    {
+                        Title="open",
+                        Url=new Uri("https://adaptivecards.io/")
+                    }
+                }
+            };
+
+            var showMoreCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 0))
             {
-                Type = AdaptiveSubmitAction.TypeName,
-                Title = "Submit",
-                Data = new JObject { { "submitLocation", "messagingExtensionFetchTask" } },
-            }
-            );
+                Body = new List<AdaptiveElement>{
+                    new AdaptiveTextBlock("This is text") { },
+                },
+                Actions = new List<AdaptiveAction>{
+                    new AdaptiveShowCardAction
+                    {
+                        Title="show more",
+                        Card=new AdaptiveCard(new AdaptiveSchemaVersion(1, 0)){
+                            Body=new List<AdaptiveElement>{
+                                new AdaptiveTextBlock("This is text") { },
+                                new AdaptiveTextBlock("This is text") { },
+                            }
+                        }
+                    }
+                }
+            };
 
             var activity = MessageFactory.Attachment(heroCard.ToAttachment());
-
             activity.Attachments.Add(new Attachment()
             {
                 ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = JsonConvert.DeserializeObject(adaptiveCard.ToJson()),
+                Content = JsonConvert.DeserializeObject(welcomeCard.ToJson()),
             });
+            activity.Attachments.Add(new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = JsonConvert.DeserializeObject(openUrlCard.ToJson()),
+            });
+            activity.Attachments.Add(new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = JsonConvert.DeserializeObject(showMoreCard.ToJson()),
+            });
+            activity.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
             foreach (var member in membersAdded)
             {
