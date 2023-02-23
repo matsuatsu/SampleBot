@@ -1,4 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿using System.Net;
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //
 // Generated with EchoBot .NET Template version v4.17.1
@@ -13,6 +14,8 @@ using System;
 using AdaptiveCards;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 
 namespace EchoBot.Bots
 {
@@ -26,6 +29,10 @@ namespace EchoBot.Bots
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
+            var option = new SearchOptions()
+            {
+                QueryType = SearchQueryType.Semantic
+            };
             var heroCard = new HeroCard
             {
                 Title = "This is a title",
